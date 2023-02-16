@@ -3,12 +3,14 @@
 ## Assignment 1
 
 
-* **NOTE** For generic professionalism requirements refer to [the Course Wiki page](https://git.gvk.idi.ntnu.no/course/prog2006/prog2006-2023/-/wikis/home#assignments)
-
-**NOTE** 
-* Notes below ARE NOT a requirement specification! 
+## Important 
+* For generic professionalism requirements refer to [the Course Wiki page](https://git.gvk.idi.ntnu.no/course/prog2006/prog2006-2023/-/wikis/home#assignments) 
+* The notes below ARE NOT a requirement specification.
 * The specification is in Mariusz's head. You need to ask questions to understand what needs to be done.
 * Initial [specification discussion has been recorded in the class as video](https://youtu.be/PTospJzUtF0).
+
+
+## Notes 
 
 * Simple module for visualising and analysing Go game problems.
    * Represent the game state
