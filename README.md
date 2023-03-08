@@ -2,6 +2,10 @@
 
 ## Assignment 1
 
+* Deadline: **March 31, 23:59**
+* Submission must be done through [the submission system](https://10.212.175.82)
+   - https://10.212.175.82
+   - Hash: `cg49jme8eh9dbc0db0sg`
 
 ## Important
 * For generic professionalism requirements refer to [the Course Wiki page](https://git.gvk.idi.ntnu.no/course/prog2006/prog2006-2023/-/wikis/home#assignments)
