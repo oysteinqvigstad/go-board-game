@@ -1,10 +1,10 @@
 name:                gogame
 version:             0.1.0.0
-github:              "marni/gogame"
+github:              "githubuser/assignment1"
 license:             BSD3
-author:              "Mariusz Nowostawski"
-maintainer:          "mariusz.nowostawski@ntnu.no"
-copyright:           "2023 (C) Nowostawski"
+author:              "Øystein Qvigstad"
+maintainer:          "oysteinq@stud.ntnu.no"
+copyright:           "2023 Qvigstad"
 
 extra-source-files:
 - README.md
@@ -20,6 +20,11 @@ description:         Please see the README on GitHub at <https://github.com/marn
 
 dependencies:
 - base >= 4.7 && < 5
+- text
+- sdl2
+- sdl2-ttf
+- sdl2-image
+- monad-loops
 
 ghc-options:
 - -Wall
