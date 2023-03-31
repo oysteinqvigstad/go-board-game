@@ -8,7 +8,9 @@ import Board (initBoard)
 import Graphics
 import DataTypes
 import SDL.Font
+import System.IO (hFlush, stdout)
 import qualified SDL
+import Control.Exception
 
 -- | go initiates the libraries and starts the entry point of the game
 go :: IO ()
@@ -24,7 +26,7 @@ go = withSDL . withSDLImage . withSDLFont $ do
 mainApp :: SDL.Window -> IO ()
 mainApp win =
     withRenderer win (\r -> do
-      let initWorld = initBoard "(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]RU[Japanese]SZ[13]KM[0.00]PW[Walter White]PB[Jack Black];AW[bb][bc][cb]AB[ba][ab][db][ac][bd][ca]AW[fa]"
+      initWorld <- readFromFile "game.sgf"
       t <- traverse (loadTextureWithInfo r) ["./assets/wood.jpg", "./assets/whiteStone.png", "./assets/blackStone.png"]
       let texturedWorld = initWorld {boardTexture = head t, stoneTextureWhite = fst (t !! 1), stoneTextureBlack = fst (t !! 2)}
       let loop w = do
@@ -35,3 +37,10 @@ mainApp win =
       loop texturedWorld
       mapM_ (SDL.destroyTexture . fst) t
       )
+
+readFromFile :: String -> IO World
+readFromFile filename = do
+      contents <- try (readFile filename) :: IO (Either IOException String)
+      case contents of
+        Left _ -> putStrLn ("could not read from file: " ++ filename) >> hFlush stdout >> return (initBoard "")
+        Right str -> putStrLn ("loaded from file: " ++ filename) >> hFlush stdout >> return (initBoard str)
