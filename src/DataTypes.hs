@@ -46,11 +46,6 @@ data Intent
 
 
 
-initialPlayer :: Player
-initialPlayer = Player { name = ""
-                       , captured = 0
-                       } 
-
 initialWorld :: World
 initialWorld = World { exiting = False
                      , playerTurn = Black
@@ -63,8 +58,8 @@ initialWorld = World { exiting = False
                      , stoneTextureBlack = undefined
                      , stoneTextureWhite = undefined
                      , mousePos = SDL.V2 (-100) (-100)
-                     , players = [initialPlayer, initialPlayer]
-                     , size = 0
+                     , players = [Player { name = "Player 1", captured = 0 }, Player { name = "Player 2", captured = 0 }]
+                     , size = 13
                      , setup = []
                      , moves = []
                      , board = [[]]

@@ -7,7 +7,8 @@ import Data.Char (toLower, ord)
 
 -- | parser is the entrypoint for converting a SGF string to game state
 parser :: String -> World
-parser = readGameTree initialWorld
+parser [] = initialWorld
+parser xs = readGameTree initialWorld xs
 
 -- | readGameTree calls readSequence for any game trees found in the string
 readGameTree :: World -> [Char] -> World
