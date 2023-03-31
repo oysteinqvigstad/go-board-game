@@ -28,7 +28,6 @@ library
       DataTypes
       Game
       Graphics
-      Lib
       Text
   other-modules:
       Paths_gogame

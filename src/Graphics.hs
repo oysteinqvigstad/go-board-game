@@ -12,31 +12,31 @@ import Data.Foldable          (foldl')
 import SDL (($=))
 import DataTypes
 import Foreign.C.Types
-import Data.Maybe (isJust, fromJust, isNothing)
+import Data.Maybe (isJust, fromJust)
 import Board
 
 black :: SDL.Font.Color
 black = SDL.V4 0 0 0 255
 
--- Sets SDL.HintRenderScaleQuality
+-- | setHintQuality sets nearest pixel sampling for scaling
 setHintQuality :: (MonadIO m) => m ()
 setHintQuality = SDL.HintRenderScaleQuality $= SDL.ScaleNearest
 
--- Sets SDL library and executes an operation in SDL context.
--- Clears SDL when operation finishes.
+-- | withSDL initilizes the SDL library
 withSDL :: (MonadIO m) => m a -> m ()
 withSDL op = do
   SDL.initialize []
   void op
   SDL.quit
 
--- Sets SDL.Image library and executes any given operation in the context.
+-- | withSDLImage initializes SDL Image library
 withSDLImage :: (MonadIO m) => m a -> m ()
 withSDLImage op = do
   SDL.Image.initialize []
   void op
   SDL.Image.quit
 
+-- | withSDLFont initializes SDL Font library
 withSDLFont :: (MonadIO m) => m a -> m ()
 withSDLFont op = do
   SDL.Font.initialize
@@ -44,8 +44,7 @@ withSDLFont op = do
   SDL.Font.quit
 
 
--- Given title and dimensions it sets SDL Window and uses it to
--- run subsequent operations on the Window. Clears when done.
+-- | withWindow initializes SDL window and runs subsequent operations on the Window
 withWindow :: (MonadIO m) => Text -> (SDL.Window -> m a) -> m ()
 withWindow title op = do
   w <- SDL.createWindow title windowConfig
@@ -53,8 +52,7 @@ withWindow title op = do
   void $ op w
   SDL.destroyWindow w
 
--- Given SDL window, it sets up render and uses it to execute rendering function,
--- clears renderer when done.
+-- | withRenderer sets up the renderer and uses it to execute rendering functions
 withRenderer :: (MonadIO m) => SDL.Window -> (SDL.Renderer -> m a) -> m ()
 withRenderer w op = do
   let config = SDL.RendererConfig
@@ -66,7 +64,7 @@ withRenderer w op = do
   SDL.destroyRenderer r
 
 
--- Loads the texture with info as a tuple.
+-- | loadTexdtureWithInfo loads textures from file path
 loadTextureWithInfo :: (MonadIO m) => SDL.Renderer -> FilePath -> m (SDL.Texture, SDL.TextureInfo)
 loadTextureWithInfo r p = do
   t <- SDL.Image.loadTexture r p
@@ -74,15 +72,13 @@ loadTextureWithInfo r p = do
   pure (t, i)
 
 
-
-
--- Given a list of events, update the world
+-- | updateWorld polls for events and ensures that they are applied
 updateWorld :: World -> [SDL.Event] -> World
 updateWorld w
   = foldl' (flip applyIntent) w
   . fmap (payloadToIntent . SDL.eventPayload)
 
-
+-- | renderWorld is the render loop of the game
 renderWorld :: SDL.Renderer -> World -> IO ()
 renderWorld r w = do
   let pos = getEyeCoordFromMousePos w
@@ -99,30 +95,30 @@ renderWorld r w = do
   SDL.present r
 
 
--- Convert the SDL event to Intent
+-- | payloadToIntent converts event payload to intent 
 payloadToIntent :: SDL.EventPayload -> Intent
 payloadToIntent SDL.QuitEvent            = Quit -- window CLOSE pressed
 payloadToIntent (SDL.KeyboardEvent e)    = -- When Q is pressed, quit also
   if SDL.keysymKeycode (SDL.keyboardEventKeysym e) == SDL.KeycodeQ then Quit else Idle
 payloadToIntent (SDL.WindowResizedEvent e) = windowEventResize e
 payloadToIntent (SDL.MouseMotionEvent e) = windowEventMouseMotion e
-payloadToIntent (SDL.MouseButtonEvent e) = windowEventMouseClick e
+payloadToIntent (SDL.MouseButtonEvent e) = windowEventMouseButton e
 payloadToIntent _                        = Idle
 
+-- | windowEventMouseClick sets mouse press/release intent
+windowEventMouseButton :: SDL.MouseButtonEventData -> Intent
+windowEventMouseButton e = if SDL.mouseButtonEventMotion e == SDL.Pressed then MousePressed else MouseReleased
 
-windowEventMouseClick :: SDL.MouseButtonEventData -> Intent
-windowEventMouseClick e = if SDL.mouseButtonEventMotion e == SDL.Pressed then MousePressed else MouseReleased
-
-
+-- | windowEventResize sets window resize intent
 windowEventResize :: SDL.WindowResizedEventData -> Intent
-windowEventResize e = WindowResize size
-  where size = fromIntegral <$> SDL.windowResizedEventSize e
+windowEventResize e = WindowResize $ fromIntegral <$> SDL.windowResizedEventSize e
 
-
+-- | windowEventMouseMotion sets mouse motion intent with position
 windowEventMouseMotion :: SDL.MouseMotionEventData -> Intent
 windowEventMouseMotion e = MouseMovement $ fmap fromIntegral pos
   where (SDL.P pos) = SDL.mouseMotionEventPos e
 
+-- | applyIntent updates the game state based on event/intent
 applyIntent :: Intent -> World -> World
 applyIntent (WindowResize c) w = w {windowSize = c, mousePos = mousePos initialWorld}
 applyIntent (MouseMovement c) w = w {mousePos = c}
@@ -131,6 +127,7 @@ applyIntent MouseReleased w = eventMouseReleased w
 applyIntent Idle w = w
 applyIntent Quit w = w {exiting = True}
 
+-- | eventMouseReleased applies mouse release event
 eventMouseReleased :: World -> World
 eventMouseReleased w = if isJust pos then apply {playerTurn = nextplayer} else w
   where pos = getEyeCoordFromMousePos w
@@ -139,7 +136,7 @@ eventMouseReleased w = if isJust pos then apply {playerTurn = nextplayer} else w
         nextplayer = opponent $ playerTurn w
 
 
--- The actual method for drawing that is used by the rendering method above.
+-- | drawBackground draws a repeated background texture
 drawBackground :: SDL.Renderer -> World -> IO ()
 drawBackground r w = do
   let (SDL.V2 winWidth winHeight) = windowSize w
@@ -150,18 +147,11 @@ drawBackground r w = do
           | y >= winHeight = return ()
           | x >= winWidth = loop 0 (y + texHeight)
           | otherwise = do
-              SDL.copy r t Nothing (Just $ mkRect x y texWidth texHeight)
+              SDL.copy r t Nothing (Just $ makeRect (SDL.V2 x y, SDL.V2 texWidth texHeight))
               loop (x + texWidth) y
   loop 0 0
 
--- Makes SDL rectangle out of x y width and height
-mkRect :: a -> a -> a -> a-> SDL.Rectangle a
-mkRect x y w h = SDL.Rectangle o z
-  where
-    o = SDL.P (SDL.V2 x y)
-    z = SDL.V2 w h
-
-
+-- | drawGrid draws the game board to the renderer
 drawGrid :: SDL.Renderer -> World -> IO ()
 drawGrid r w = do
   mapM_ (uncurry (SDL.drawLine r)) xlines
@@ -171,37 +161,37 @@ drawGrid r w = do
         ylines = [(coordToP (y, 0), coordToP (y, max')) | y <- [0..max']]
         coordToP pos = SDL.P $ getAbsPos pos w
 
-
+-- | drawStones draws the stone texture for each stone at each coordinate to the renderer
 drawStones :: SDL.Renderer -> World -> IO ()
 drawStones r w = mapM_ (\x -> drawStone r w (fst x) (fromJust $ snd x)) stoneList
   where stoneList :: [(Coord, Maybe Stone)]
         stoneList = [((j, i), value) | (i, col) <- zip [0..] (board w), (j, value) <- zip [0..] col, isJust value]
 
-
+-- | drawStone draws a single stone texture based on coordinate
 drawStone :: SDL.Renderer -> World -> Coord -> Stone -> IO ()
-drawStone r w c stone = SDL.copy r texture Nothing rect
+drawStone r w c s = SDL.copy r texture Nothing rect
   where rect = Just $ makeRect $ positionStone c w
-        texture = selectTexture stone
+        texture = selectTexture s
         selectTexture :: Stone -> SDL.Texture
         selectTexture s
           | s == White = stoneTextureWhite w
           | otherwise = stoneTextureBlack w
 
-
+-- | positionStone offsets the abs texture coordinates for a stone, based on size
 positionStone :: Coord -> World -> (SDL.V2 CInt, SDL.V2 CInt)
 positionStone c w = (getAbsPos c w - SDL.V2 stoneRadius stoneRadius, SDL.V2 stoneSize stoneSize)
   where stoneSize = getStoneSize w
         stoneRadius = getStoneRadius w
 
-
+-- | getStoneSize calculates how large the stone should be drawn based on the window scaling
 getStoneSize :: World -> CInt
 getStoneSize w = truncate $ fromIntegral (getGridStepSize w) * 0.8
 
-
+-- | getStoneRadius calculates the radius each stone should have
 getStoneRadius :: World -> CInt
 getStoneRadius w = truncate $ fromIntegral (getStoneSize w) / 2.0
 
-
+-- | getEyeCoordFromMousePos calculates which intersection the mouse hovers over
 getEyeCoordFromMousePos :: World -> Maybe Coord
 getEyeCoordFromMousePos w
         | x < 0 || x >= size w = Nothing
@@ -216,13 +206,13 @@ getEyeCoordFromMousePos w
               (x, y) = (fromIntegral x', fromIntegral y')
 
 
--- makeRect returns a rectangle based on the vector positions provided
-makeRect :: (SDL.V2 CInt, SDL.V2 CInt) -> SDL.Rectangle CInt
+-- | makeRect returns a rectangle based on the vector positions provided
+makeRect :: (SDL.V2 a, SDL.V2 a) -> SDL.Rectangle a
 makeRect (start, end) = SDL.Rectangle (SDL.P start) end
 
 
--- | getAbsPos'
--- >>> getAbsPos' (0,0) $ initialWorld { windowSize = SDL.V2 1024 1024, boardAreaStart = SDL.V2 0.1 0.1, size = 19 }
+-- | getAbsPos
+-- >>> getAbsPos (0,0) $ initialWorld { windowSize = SDL.V2 1024 1024, boardAreaStart = SDL.V2 0.1 0.1, size = 19 }
 getAbsPos :: Coord -> World -> AbsPos
 getAbsPos (x, y) w = SDL.V2 (fromIntegral x * step) (fromIntegral y * step) + start
   where step = getGridStepSize w
@@ -244,22 +234,24 @@ getGridStartPos :: World -> AbsPos
 getGridStartPos w = cfloatToCInt $ cintToCFloat (windowSize w) * boardAreaStart w
 
 
--- returns the size in pixels (x, y) of the window context provided
+-- | getWindowSize returns the window size in pixels (x, y) of the window context provided
 getWindowSize :: SDL.Window -> IO (Int, Int)
 getWindowSize w = do
   (SDL.V2 width height) <- fmap fromIntegral <$> SDL.get (SDL.windowSize w)
   return (width, height)
   
--- converts 2V CFloat to V2 CInt
+-- | cfloatToInt converts 2V CFloat to V2 CInt
 cfloatToCInt :: SDL.V2 CFloat -> SDL.V2 CInt
 cfloatToCInt (SDL.V2 a b) = SDL.V2 (truncate a) (truncate b)
 
--- converts V2 CInt to V2 CFloat
+-- | cintToCFloat converts V2 CInt to V2 CFloat
 cintToCFloat :: SDL.V2 CInt -> SDL.V2 CFloat
 cintToCFloat (SDL.V2 a b) = SDL.V2 (fromIntegral a :: CFloat) (fromIntegral b :: CFloat)
 
 
--- | Let us draw some text
+-- | drawText draws text to the renderer
+-- the font is loaded from memory every time because scaling a fixed font size looks terrible
+-- this function could be optimized but it will require a lot more work which is not a requirement
 drawText :: SDL.Renderer -> Text -> AbsPos -> Int -> IO ()
 drawText r t pos scale = do
         font <- SDL.Font.load "./ttf/roboto/Roboto-Regular.ttf" scale
@@ -274,7 +266,7 @@ drawText r t pos scale = do
 
 
 
-
+-- | drawScoreboard writes the names and num of captured stones for each player to the renderer
 drawScoreboard :: SDL.Renderer -> World -> IO ()
 drawScoreboard r w = do
       let p1 = head . players $ w
@@ -286,17 +278,18 @@ drawScoreboard r w = do
       where put :: String -> RelativePos -> Float -> IO ()
             put s p relSize = do
               let areaSize = getAreaSize w (scoreboardAreaStart w) (scoreboardAreaEnd w)
-              let scale@(SDL.V2 x _) = cintToCFloat $ squareMinimumV2 areaSize
+              let scale@(SDL.V2 x _) = cintToCFloat $ squareMinimum areaSize
               let areaStart = getGridStartPos w + SDL.V2 (getGridStepSize w * fromIntegral (size w)) 0
               let absPos = areaStart + cfloatToCInt (p * scale)
               let fontsize = truncate $ relSize * realToFrac (x / 15.0)
               drawText r (pack s) absPos fontsize
 
+            -- | getAreaSize returns the size of an area based on percentages
+            getAreaSize :: World -> RelativePos -> RelativePos -> AbsPos
+            getAreaSize w a b = cfloatToCInt $ (b - a) * cintToCFloat (windowSize w)
 
-getAreaSize :: World -> RelativePos -> RelativePos -> AbsPos
-getAreaSize w a b = cfloatToCInt $ (b - a) * cintToCFloat (windowSize w)
-
-squareMinimumV2 :: Ord a => SDL.V2 a -> SDL.V2 a
-squareMinimumV2 (SDL.V2 n m) = let min' = min n m in SDL.V2 min' min'
+            -- | squareMinimum squares the smallest side of a rectangle
+            squareMinimum :: Ord a => SDL.V2 a -> SDL.V2 a
+            squareMinimum (SDL.V2 n m) = let min' = min n m in SDL.V2 min' min'
 
 
