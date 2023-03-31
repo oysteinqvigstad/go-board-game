@@ -12,7 +12,7 @@ import Data.Foldable          (foldl')
 import SDL (($=))
 import DataTypes
 import Foreign.C.Types
-import Data.Maybe (isJust, fromJust, isNothing)
+import Data.Maybe (isJust, fromJust)
 import Board
 
 black :: SDL.Font.Color
@@ -111,8 +111,7 @@ windowEventMouseButton e = if SDL.mouseButtonEventMotion e == SDL.Pressed then M
 
 -- | windowEventResize sets window resize intent
 windowEventResize :: SDL.WindowResizedEventData -> Intent
-windowEventResize e = WindowResize size
-  where size = fromIntegral <$> SDL.windowResizedEventSize e
+windowEventResize e = WindowResize $ fromIntegral <$> SDL.windowResizedEventSize e
 
 -- | windowEventMouseMotion sets mouse motion intent with position
 windowEventMouseMotion :: SDL.MouseMotionEventData -> Intent
@@ -148,16 +147,9 @@ drawBackground r w = do
           | y >= winHeight = return ()
           | x >= winWidth = loop 0 (y + texHeight)
           | otherwise = do
-              SDL.copy r t Nothing (Just $ mkRect x y texWidth texHeight)
+              SDL.copy r t Nothing (Just $ makeRect (SDL.V2 x y, SDL.V2 texWidth texHeight))
               loop (x + texWidth) y
   loop 0 0
-
--- | mkRect makes SDL rectangle out of x y width and height
-mkRect :: a -> a -> a -> a-> SDL.Rectangle a
-mkRect x y w h = SDL.Rectangle o z
-  where
-    o = SDL.P (SDL.V2 x y)
-    z = SDL.V2 w h
 
 -- | drawGrid draws the game board to the renderer
 drawGrid :: SDL.Renderer -> World -> IO ()
@@ -177,9 +169,9 @@ drawStones r w = mapM_ (\x -> drawStone r w (fst x) (fromJust $ snd x)) stoneLis
 
 -- | drawStone draws a single stone texture based on coordinate
 drawStone :: SDL.Renderer -> World -> Coord -> Stone -> IO ()
-drawStone r w c stone = SDL.copy r texture Nothing rect
+drawStone r w c s = SDL.copy r texture Nothing rect
   where rect = Just $ makeRect $ positionStone c w
-        texture = selectTexture stone
+        texture = selectTexture s
         selectTexture :: Stone -> SDL.Texture
         selectTexture s
           | s == White = stoneTextureWhite w
@@ -215,7 +207,7 @@ getEyeCoordFromMousePos w
 
 
 -- | makeRect returns a rectangle based on the vector positions provided
-makeRect :: (SDL.V2 CInt, SDL.V2 CInt) -> SDL.Rectangle CInt
+makeRect :: (SDL.V2 a, SDL.V2 a) -> SDL.Rectangle a
 makeRect (start, end) = SDL.Rectangle (SDL.P start) end
 
 
@@ -292,12 +284,12 @@ drawScoreboard r w = do
               let fontsize = truncate $ relSize * realToFrac (x / 15.0)
               drawText r (pack s) absPos fontsize
 
--- | getAreaSize returns the size of an area based on percentages
-getAreaSize :: World -> RelativePos -> RelativePos -> AbsPos
-getAreaSize w a b = cfloatToCInt $ (b - a) * cintToCFloat (windowSize w)
+            -- | getAreaSize returns the size of an area based on percentages
+            getAreaSize :: World -> RelativePos -> RelativePos -> AbsPos
+            getAreaSize w a b = cfloatToCInt $ (b - a) * cintToCFloat (windowSize w)
 
--- | squareMinimum squares the smallest side of a rectangle
-squareMinimum :: Ord a => SDL.V2 a -> SDL.V2 a
-squareMinimum (SDL.V2 n m) = let min' = min n m in SDL.V2 min' min'
+            -- | squareMinimum squares the smallest side of a rectangle
+            squareMinimum :: Ord a => SDL.V2 a -> SDL.V2 a
+            squareMinimum (SDL.V2 n m) = let min' = min n m in SDL.V2 min' min'
 
 
