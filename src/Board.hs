@@ -1,36 +1,25 @@
 module Board
-    ( initiateBoard
-    , initBoard
-    , printBoard
-    , placeStones
-    , placeStone
-    , stoneToChar
-    , isOccupied
-    , getUnit
-    , legalCoord
-    , hasLiberty
-    , capture
-    , suicide
+    ( initBoard
     , addStoneToBoardAndRecord
     , opponent
     ) where
 
 import Text
 import Data.List (intersperse)
-import Data.Maybe (isJust, isNothing)
+import Data.Maybe (isNothing)
 import DataTypes
 
--- initiateBoard creates a n*n empty board
-initiateBoard :: Int -> Board
-initiateBoard n = replicate n $ replicate n Nothing
 
 initBoard :: String -> World
 initBoard str = world3
   where world = parser str
-        b = placeStones (initiateBoard $ size world) $ setup world
+        b = placeStones (genEmptyBoard $ size world) $ setup world
         world2 = world { board = b }
         world3 = foldl addStoneToBoardWithoutRecord world2 $ moves world2
-         
+        -- initiateBoard creates a n*n empty board
+        genEmptyBoard :: Int -> Board
+        genEmptyBoard n = replicate n $ replicate n Nothing
+
         
 -- printBoard writes a board to stdout
 -- e.g.
@@ -40,13 +29,13 @@ initBoard str = world3
 --        . . . . .
 --        . . . . .
 printBoard :: Board -> IO ()
-printBoard b = mapM_ (putStrLn . intersperse ' ') [ map stoneToChar row | row <- b ]  
+printBoard b = mapM_ (putStrLn . intersperse ' ') [ map stoneToChar row | row <- b ]
+  where stoneToChar :: Maybe Stone -> Char
+        stoneToChar (Just Black) = 'X'
+        stoneToChar (Just White) = 'O'
+        stoneToChar Nothing = '.'
 
 
-stoneToChar :: Maybe Stone -> Char
-stoneToChar (Just Black) = 'X'
-stoneToChar (Just White) = 'O'
-stoneToChar Nothing = '.'
 
 removeStones :: Board -> [Move] -> Board
 removeStones = foldl removeStone 
@@ -69,10 +58,7 @@ placeStone b m = take (y m) b ++ [placeStone' (b !! y m)] ++ drop (y m + 1) b
         x move = fst $ coord move 
         y move = snd $ coord move
         
--- isOccupied returns true if a stone is already in the intersection
-isOccupied :: Board -> Move -> Bool
-isOccupied board move = isJust $ board !! snd (coord move) !! fst (coord move)
-
+        
 legalCoord :: Board -> Move -> Bool
 legalCoord b (Move _ (x, y)) =
   let xrange = [0..(length b - 1)]
