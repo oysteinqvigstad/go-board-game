@@ -10,7 +10,7 @@ import DataTypes
 import SDL.Font
 import qualified SDL
 
-
+-- | go initiates the libraries and starts the entry point of the game
 go :: IO ()
 go = withSDL . withSDLImage . withSDLFont $ do
   setHintQuality
@@ -18,7 +18,7 @@ go = withSDL . withSDLImage . withSDLFont $ do
 
 
 
--- Main entry to our application logic. It takes the handle to the SDL Window,
+-- | Main entry to the game. It takes the handle to the SDL Window,
 -- sets everything up and executes the main application loop: handle user inputs,
 -- and draw the world.
 mainApp :: SDL.Window -> IO ()

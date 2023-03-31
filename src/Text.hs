@@ -5,25 +5,25 @@ module Text (parser
 import DataTypes
 import Data.Char (toLower, ord)
 
-
+-- | parser is the entrypoint for converting a SGF string to game state
 parser :: String -> World
 parser = readGameTree initialWorld
 
-
+-- | readGameTree calls readSequence for any game trees found in the string
 readGameTree :: World -> [Char] -> World
 readGameTree state (x:xs)
   | x == '(' = readSequence state xs
   | otherwise = readGameTree state xs
 readGameTree state _ = state
 
-
+-- | readSequence calls readProperty for all properties found in the sequence
 readSequence :: World -> [Char] -> World
 readSequence state (x:xs)
   | x == ';' = let (newWorld, newString) = readProperty state xs in readSequence newWorld newString
   | otherwise = readSequence state xs
 readSequence state _ = state
 
-
+-- | readProperty splits each property into a key value pair and calls setProp for each
 readProperty :: World -> String -> (World, String)
 readProperty w as@(x:xs)
   | x `elem` [';', ')', '('] = (w, as)
@@ -37,6 +37,7 @@ readProperty w as@(x:xs)
 readProperty state _ = (state, "")
 
 
+-- | setProp sets the game state based on key value pair provided
 setProp :: World -> (String, String) -> World
 setProp state (key, value)
   | key == "PW" = let p = players state in state { players = [(head p) {name = value}, last p]}
@@ -48,13 +49,14 @@ setProp state (key, value)
   | key == "AW" = state { setup = setup state ++ [Move {stone = White, coord = strToPos value}]}
   | otherwise = state
   
-
+  
+-- | splitProp splits the string into (key, value, substring)
 splitProp :: String -> (String, String, String)
 splitProp xs =
   let (key, substr) = break (=='[') xs
       (value, leftover) = break (==']') substr
   in (key, tail value, tail leftover)
 
-
+-- | strToPos converts a coordinate from chars to integers
 strToPos :: String -> Coord
 strToPos xs = let n = map (flip (-)97 . ord . toLower) xs in (head n, last n)
