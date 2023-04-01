@@ -44,9 +44,9 @@ setProp state (key, value)
   | key == "PW" = let p = players state in state { players = [(head p) {name = value}, last p]}
   | key == "PB" = let p = players state in state { players = [head p, (last p) {name = value}]}
   | key == "SZ" = state { size = read value }
-  | key == "B" = state { moves = moves state ++ [Move {stone = Black, coord = strToPos value}]}
+  | key == "B" = state { playerTurn = White, moves = moves state ++ [Move {stone = Black, coord = strToPos value}]}
   | key == "AB" = state { setup = setup state ++ [Move {stone = Black, coord = strToPos value}]}
-  | key == "W" = state { moves = moves state ++ [Move {stone = White, coord = strToPos value}]}
+  | key == "W" = state { playerTurn = Black, moves = moves state ++ [Move {stone = White, coord = strToPos value}]}
   | key == "AW" = state { setup = setup state ++ [Move {stone = White, coord = strToPos value}]}
   | otherwise = state
   
