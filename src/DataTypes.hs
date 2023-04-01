@@ -34,6 +34,7 @@ data World = World
   , setup :: [Move]
   , moves :: [Move] 
   , board :: Board
+  , prevBoard :: Board
   } 
   
 data Intent
@@ -63,7 +64,8 @@ initialWorld = World { exiting = False
                      , setup = []
                      , moves = []
                      , board = [[]]
-                     }                
+                     , prevBoard = [[]]
+                     }
                      
 windowConfig :: SDL.WindowConfig
 windowConfig = SDL.defaultWindow { SDL.windowInitialSize = windowSize initialWorld

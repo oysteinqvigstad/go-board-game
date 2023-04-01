@@ -14,7 +14,7 @@ initBoard :: String -> World
 initBoard str = world3
   where world = parser str
         b = placeStones (genEmptyBoard $ size world) $ setup world
-        world2 = world { board = b }
+        world2 = world { board = b, prevBoard = b }
         world3 = foldl addStoneToBoardWithoutRecord world2 $ moves world2
         -- initiateBoard creates a n * n empty board
         genEmptyBoard :: Int -> Board
@@ -103,10 +103,13 @@ suicide s m =
     
     
 -- | addStoneToBoardAndRecord applies moves to the game state and appends the
--- move to the move list.
+-- move to the move list. The exception is in a ko fight
 addStoneToBoardAndRecord :: World -> Move -> World
-addStoneToBoardAndRecord s m = suicide (capture (s {moves = moves s ++ [m], board = placeStone b m}) m) m
-  where b = board s
+addStoneToBoardAndRecord w m = if ko then w else newboard { prevBoard = board w, playerTurn = nextplayer }
+  where b = board w
+        newboard = suicide (capture (w {moves = moves w ++ [m], board = placeStone b m}) m) m
+        ko = board newboard == prevBoard w
+        nextplayer = opponent $ playerTurn w
 
 -- | addStoneToBoardWithoutRecord applies move to the game state but does not append
 -- the move to the move list. This is useful for processing prerecorded moves
