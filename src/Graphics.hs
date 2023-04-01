@@ -129,7 +129,7 @@ applyIntent Quit w = w {exiting = True}
 
 -- | eventMouseReleased applies mouse release event
 eventMouseReleased :: World -> World
-eventMouseReleased w = if isJust pos then apply {playerTurn = nextplayer} else w
+eventMouseReleased w = if isJust pos then apply else w
   where pos = getEyeCoordFromMousePos w
         move = Move {stone = playerTurn w, coord = fromJust pos}
         apply = addStoneToBoardAndRecord w move
