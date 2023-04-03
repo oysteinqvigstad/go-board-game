@@ -169,8 +169,8 @@ drawStone r w c s = SDL.copy r texture Nothing rect
   where rect = Just $ makeRect $ positionStone c w
         texture = selectTexture s
         selectTexture :: Stone -> SDL.Texture
-        selectTexture s
-          | s == White = stoneTextureWhite w
+        selectTexture s'
+          | s' == White = stoneTextureWhite w
           | otherwise = stoneTextureBlack w
 
 -- | positionStone offsets the abs texture coordinates for a stone, based on size
@@ -180,10 +180,16 @@ positionStone c w = (getAbsPos c w - SDL.V2 stoneRadius stoneRadius, SDL.V2 ston
         stoneRadius = getStoneRadius w
 
 -- | getStoneSize calculates how large the stone should be drawn based on the window scaling
+-- >>> let w = initialWorld { windowSize = SDL.V2 1024 600 }
+-- >>> getStoneSize w
+-- 36
 getStoneSize :: World -> CInt
 getStoneSize w = truncate $ fromIntegral (getGridStepSize w) * 0.8
 
 -- | getStoneRadius calculates the radius each stone should have
+-- >>> let w = initialWorld { windowSize = SDL.V2 1024 600 }
+-- >>> getStoneRadius w
+-- 18
 getStoneRadius :: World -> CInt
 getStoneRadius w = truncate $ fromIntegral (getStoneSize w) / 2.0
 
@@ -209,6 +215,7 @@ makeRect (start, end) = SDL.Rectangle (SDL.P start) end
 
 -- | getAbsPos
 -- >>> getAbsPos (0,0) $ initialWorld { windowSize = SDL.V2 1024 1024, boardAreaStart = SDL.V2 0.1 0.1, size = 19 }
+-- V2 102 102
 getAbsPos :: Coord -> World -> AbsPos
 getAbsPos (x, y) w = SDL.V2 (fromIntegral x * step) (fromIntegral y * step) + start
   where step = getGridStepSize w
@@ -217,7 +224,7 @@ getAbsPos (x, y) w = SDL.V2 (fromIntegral x * step) (fromIntegral y * step) + st
 
 -- | getGridStepSize
 -- >>> getGridStepSize $ initialWorld { windowSize = SDL.V2 1024 1024, boardAreaStart = SDL.V2 0.1 0.1, size = 19 }
---
+-- 28
 getGridStepSize :: World -> CInt
 getGridStepSize w = truncate $ min width height / fromIntegral (size w - 1)
   where (SDL.V2 width height) = cintToCFloat (windowSize w) * (boardAreaEnd w - boardAreaStart w)
@@ -235,12 +242,18 @@ getWindowSize :: SDL.Window -> IO (Int, Int)
 getWindowSize w = do
   (SDL.V2 width height) <- fmap fromIntegral <$> SDL.get (SDL.windowSize w)
   return (width, height)
-  
+
+
 -- | cfloatToInt converts 2V CFloat to V2 CInt
+-- >>> cfloatToCInt (SDL.V2 5.5 2.9) == (SDL.V2 5 2)
+-- True
 cfloatToCInt :: SDL.V2 CFloat -> SDL.V2 CInt
 cfloatToCInt (SDL.V2 a b) = SDL.V2 (truncate a) (truncate b)
 
+
 -- | cintToCFloat converts V2 CInt to V2 CFloat
+-- >>> cintToCFloat (SDL.V2 5 2) == (SDL.V2 5.0 2.0)
+-- True
 cintToCFloat :: SDL.V2 CInt -> SDL.V2 CFloat
 cintToCFloat (SDL.V2 a b) = SDL.V2 (fromIntegral a :: CFloat) (fromIntegral b :: CFloat)
 
