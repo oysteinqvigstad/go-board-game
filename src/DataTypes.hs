@@ -15,7 +15,7 @@ data Move = Move { stone :: Stone
                  , coord :: Coord } deriving (Show, Eq)
                  
 data Player = Player { name :: String
-                     , captured :: Int } deriving (Show)
+                     , captured :: Int } deriving (Show, Eq)
                  
 data World = World
   { exiting :: Bool
@@ -35,7 +35,7 @@ data World = World
   , moves :: [Move] 
   , board :: Board
   , prevBoard :: Board
-  } 
+  }
   
 data Intent
   = Idle
