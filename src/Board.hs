@@ -26,20 +26,6 @@ initBoard str = world3
         genEmptyBoard n = replicate n $ replicate n Nothing
 
         
--- | printBoard writes a board to stdout
--- e.g.
---        X . . . .
---        . O . . .
---        . . . . .
---        . . . . .
---        . . . . .
-printBoard :: Board -> IO ()
-printBoard b = mapM_ (putStrLn . intersperse ' ') [ map stoneToChar row | row <- b ]
-  where stoneToChar :: Maybe Stone -> Char
-        stoneToChar (Just Black) = 'X'
-        stoneToChar (Just White) = 'O'
-        stoneToChar Nothing = '.'
-
 
 -- | removeStones removes stones from the board array
 -- >>> let b1 = board $ initBoard "(;SZ[13];B[aa][cc])"
