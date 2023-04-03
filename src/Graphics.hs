@@ -5,7 +5,7 @@ module Graphics where
 import qualified SDL 
 import qualified SDL.Image
 import qualified SDL.Font
-import Control.Monad          (void)
+import Control.Monad          (void, when)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Text              (Text, pack)
 import Data.Foldable          (foldl')
@@ -87,11 +87,7 @@ renderWorld r w = do
   drawGrid r w
   drawStones r w
   drawScoreboard r w
-  if isJust pos
-    then do
-      drawStone r w (fromJust pos) (playerTurn w)
-    else
-      return ()
+  when (isJust pos) $ drawStone r w (fromJust pos) (playerTurn w)
   SDL.present r
 
 
