@@ -7,8 +7,6 @@ module Game
 import Board (initBoard)
 import Graphics
 import DataTypes
-import SDL.Font
-import System.IO (hFlush, stdout)
 import qualified SDL
 import Control.Exception
 
@@ -38,9 +36,11 @@ mainApp win =
       mapM_ (SDL.destroyTexture . fst) t
       )
 
+-- | reawdFromFile will read from SGF file path provided, and initate the world based on that.
+-- if the file is empty or otherwise missing, then the initial world defined in `DataTypes.hs` will be used 
 readFromFile :: String -> IO World
 readFromFile filename = do
       contents <- try (readFile filename) :: IO (Either IOException String)
       case contents of
-        Left _ -> putStrLn ("could not read from file: " ++ filename) >> hFlush stdout >> return (initBoard "")
-        Right str -> putStrLn ("loaded from file: " ++ filename) >> hFlush stdout >> return (initBoard str)
+        Left _ -> return (initBoard "")
+        Right str -> return (initBoard str)
