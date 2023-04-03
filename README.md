@@ -24,22 +24,24 @@ Additionally, the program will attempt to load the game.sgf file from the projec
 
 **Mandatory Requirements**: These are the requirements that must be met for a passable grade
 
+- The game must be written in Haskell or Rust
 - Visually represent game state and the stones on the board
 - Seamlessly update board state with each game move.
 - Accurately detect liberties and captures
 - Effectively load board state from file according to SGF specs for ease of use. 
 - Automatically prevent illegal game moves, with the exception of the ko rule.
 - Correctly capture stones according to the rules of the game.
-- Operate continuously without interruption for more than 30 seconds.
+- Unless White played last in the SGF file, the black stone should make the first move.
+- Operate continuously without interruption for more than 2 seconds.
 
 **Optional Requirements**: These are the requirements that would count as extra credit
 
-- The program should include a graphical user interface with intuitive mouse interaction for placing stones.
-- Unless White played last in the SGF file, the black stone should make the first move. 
-- The graphical user interface should be resizable, allowing users to adjust the size of the application window.
 - The program should enforce the "ko rule" to prevent illegal game moves.
-- The program should include a check to determine if the boards are isomorphic for translation, rotation, and symmetry.
+- The program should use SDL2 for graphical user interface with intuitive mouse interaction for placing stones.
+- The graphical user interface should be resizable, allowing users to adjust the size of the application window.
+- Stones and the game board should be represented with textures
 - The program should include an "undo" function, allowing users to revert to a previous game state.
+- The program should include a check to determine if the boards are isomorphic for translation, rotation, and symmetry.
 - The board state should be updatable via computer-generated moves, which could include:
   1. Identifying a single move that eliminates the most stones.
   2. Identifying a single move that extends the degrees of freedom for a group.
@@ -67,6 +69,7 @@ Additionally, the program will attempt to load the game.sgf file from the projec
 
 4. Reliability:
     - Stability: The program should handle errors gracefully and never crash, being resilient to user input.
+    - Testing: Unit tests should cover roughly 60 percent of the program code 
 
 5. Maintainability:
     - Code Quality: The code should adhere to established coding standards and be written following best practices.
