@@ -26,6 +26,23 @@ Gameplay control is limited to mouse input, specifically by selecting an interse
 
 At present, the game does not support the ability to save the state to file.
 
+### Project structure
+
+
+    ├── app             
+    │ └── Main.hs           // Entry point of the applcation
+    ├── assets              // Textures
+    ├── game.sgf            // SGF formated game state
+    ├── src                 
+    │ ├── Board.hs          // Board logic
+    │ ├── DataTypes.hs      // Global data types 
+    │ ├── Game.hs           // Game initialization and core game loop
+    │ ├── Graphics.hs       // SDL related functions
+    │ └── Text.hs           // SGF parser
+    └── ttf                 // Fonts
+
+
+
 ## Requirement Specifications
 
 ### Requirements specified by the lecturer
