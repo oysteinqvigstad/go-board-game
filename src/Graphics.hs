@@ -1,8 +1,18 @@
+module Graphics
+    ( withSDL
+    , withWindow
+    , withSDLImage
+    , withSDLFont
+    , withRenderer
+    , setHintQuality
+    , updateWorld
+    , renderWorld
+    , loadTextureWithInfo
+    ) where
+
 {-# LANGUAGE OverloadedStrings #-}
 
-module Graphics where
-
-import qualified SDL 
+import qualified SDL
 import qualified SDL.Image
 import qualified SDL.Font
 import Control.Monad          (void, when)
@@ -129,7 +139,6 @@ eventMouseReleased w = if isJust pos then apply else w
   where pos = getEyeCoordFromMousePos w
         move = Move {stone = playerTurn w, coord = fromJust pos}
         apply = addStoneToBoardAndRecord w move
-        nextplayer = opponent $ playerTurn w
 
 
 -- | drawBackground draws a repeated background texture
@@ -184,14 +193,14 @@ positionStone c w = (getAbsPos c w - SDL.V2 stoneRadius stoneRadius, SDL.V2 ston
 -- >>> getStoneSize w
 -- 36
 getStoneSize :: World -> CInt
-getStoneSize w = truncate $ fromIntegral (getGridStepSize w) * 0.8
+getStoneSize w = truncate $ fromIntegral (getGridStepSize w) * (0.8 :: Double)
 
 -- | getStoneRadius calculates the radius each stone should have
 -- >>> let w = initialWorld { windowSize = SDL.V2 1024 600 }
 -- >>> getStoneRadius w
 -- 18
 getStoneRadius :: World -> CInt
-getStoneRadius w = truncate $ fromIntegral (getStoneSize w) / 2.0
+getStoneRadius w = truncate $ fromIntegral (getStoneSize w) / (2.0 :: Double)
 
 -- | getEyeCoordFromMousePos calculates which intersection the mouse hovers over
 getEyeCoordFromMousePos :: World -> Maybe Coord
@@ -235,13 +244,6 @@ getGridStepSize w = truncate $ min width height / fromIntegral (size w - 1)
 -- V2 102 102
 getGridStartPos :: World -> AbsPos
 getGridStartPos w = cfloatToCInt $ cintToCFloat (windowSize w) * boardAreaStart w
-
-
--- | getWindowSize returns the window size in pixels (x, y) of the window context provided
-getWindowSize :: SDL.Window -> IO (Int, Int)
-getWindowSize w = do
-  (SDL.V2 width height) <- fmap fromIntegral <$> SDL.get (SDL.windowSize w)
-  return (width, height)
 
 
 -- | cfloatToInt converts 2V CFloat to V2 CInt
@@ -295,7 +297,7 @@ drawScoreboard r w = do
 
             -- | getAreaSize returns the size of an area based on percentages
             getAreaSize :: World -> RelativePos -> RelativePos -> AbsPos
-            getAreaSize w a b = cfloatToCInt $ (b - a) * cintToCFloat (windowSize w)
+            getAreaSize w' a b = cfloatToCInt $ (b - a) * cintToCFloat (windowSize w')
 
             -- | squareMinimum squares the smallest side of a rectangle
             squareMinimum :: Ord a => SDL.V2 a -> SDL.V2 a
