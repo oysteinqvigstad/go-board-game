@@ -1,8 +1,8 @@
 module DataTypes where
+
 import qualified SDL
 import Foreign.C.Types
-import qualified SDL.Font
-  
+
 data Stone = Black | White deriving (Show, Eq)
 type Board = [[Maybe Stone]]
 
@@ -16,7 +16,8 @@ data Move = Move { stone :: Stone
                  
 data Player = Player { name :: String
                      , captured :: Int } deriving (Show, Eq)
-                 
+
+
 data World = World
   { exiting :: Bool
   , playerTurn :: Stone

@@ -5,7 +5,6 @@ module Board
     ) where
 
 import Text
-import Data.List (intersperse)
 import Data.Maybe (isNothing)
 import DataTypes
 
