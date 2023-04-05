@@ -9,7 +9,6 @@ type Board = [[Maybe Stone]]
 type Coord = (Int, Int)
 type RelativePos = SDL.V2 CFloat
 type AbsPos = SDL.V2 CInt
-type Grid = [SDL.Rectangle CInt]
 
 data Move = Move { stone :: Stone
                  , coord :: Coord } deriving (Show, Eq)
