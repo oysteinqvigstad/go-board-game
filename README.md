@@ -100,16 +100,20 @@ The application should:
 
 ## Self-Assessment Report
 
+### Show and tell video
+
+https://youtu.be/qMipF-UntW8
+
 ### Functional Requirements
 
-All the mandatory requirements have been implemented, including some optional. Here is a simple checklist of the requirements listed in the functional dependency specification:
+All the mandatory requirements have been implemented, including some optional. For reference, here is a simple checklist that summarizes the requirements outlined in the requirement specification.
 
 **Mandatory**:
 - [x] Visually represent game state and the stones on the board
 - [x] Seamlessly update board state with each game move.
 - [x] Accurately detect liberties and captures
 - [x] Effectively load board state from file according to SGF specs for ease of use.
-- [x] Automatically prevent illegal game moves, with the exception of the ko rule.
+- [x] Automatically prevent illegal game moves, except the ko rule.
 - [x] Correctly capture stones according to the rules of the game.
 - [x] Unless black stone played last in the SGF file, the black stone should make the first move.
 - [x] Operate continuously without interruption for more than 2 seconds.
