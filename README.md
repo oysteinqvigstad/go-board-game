@@ -1,4 +1,22 @@
-# PROG2006 Assignment 1
+# Go Game
+
+## About
+
+A graphical implementation of the ancient board game Go, featuring basic [SGF](https://homepages.cwi.nl/~aeb/go/misc/sgf.html) (Smart Game Format) file parsing capabilities. The game is built using Haskell and SDL2 bindings, combining functional programming with graphics rendering.
+
+### Why Haskell?
+While Haskell's purely functional paradigm might seem unconventional for a game centered around state changes and side-effects, this project was part of the Programming Language course in my second year at NTNU. The implementation provided valuable insights into:
+
+- **Monadic Abstractions**: Managing game state and IO operations through functional patterns and monads
+- **Algebraic Data Types**: Modeling game elements and rules using sum and product types, leveraging the type system for correctness
+- **Pattern Matching**: Implementing game logic through Haskell's expressive pattern matching
+- **Pure Game Logic**: Separating pure game rules from side effects, making the code more testable and maintainable
+
+The project served as a practical exercise in applying functional programming concepts, and how Haskell's strict separation of pure and impure code can structure even UI applications. While more conventional choices like C++, Python, or Java might be more practical for game development, using Haskell provided valuable insights into functional programming.
+
+A show-and-tell video created for class:
+
+https://github.com/user-attachments/assets/502c349d-1bc9-4fa7-b0e6-2bc99af2bfe2
 
 ## Build and run instructions
 
@@ -116,10 +134,6 @@ The application should:
 - Include comments in functions that explain their purpose, particularly if it is not immediately apparent.
 
 ## Self-Assessment Report
-
-### Show and tell video
-
-https://youtu.be/qMipF-UntW8
 
 ### Functional Requirements
 
